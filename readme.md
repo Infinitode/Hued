@@ -26,13 +26,14 @@ Hued supports the following Python versions:
 - Python 3.10
 - Python 3.11 or later
 
-Please ensure that you have one of these Python versions installed before using Hued. Hued may not work as expected on lower versions of Python than the supported.
+Please ensure that one of these Python versions is installed before using Hued. Hued may not work as expected on lower versions of Python than the supported.
 
 ## Features
 
 - Color Generation: Generate random colors and palettes.
 - Color Conversion: Convert between different color formats (RGB, HEX, HSL, etc.).
-- Color Properties: Retrieve properties like brightness, temperature, and whether a color is muted or vibrant.
+- Color Properties: Retrieve properties like brightness, temperature, and whether a color is muted, pastel, or vibrant.
+- Color Names: Get relevant color names, based on HEX values, and convert between color names and HEX values.
 
 ## Usage
 
@@ -101,7 +102,7 @@ random_palette = palette.generate_random_palette()
 print(f"Generated color palette's base color: {random_palette.get('Base Color')}")
 ```
 
-> More functions are available for the `ColorPalette` class, including converting all of the contained colors to **Hex colors**.
+> More functions are available for the `ColorPalette` class, including converting all contained colors to **Hex colors**.
 
 ## Contributing
 
