@@ -90,7 +90,7 @@ class ColorPalette:
         Generates a monochromatic color palette with varying lightness.
 
         Parameters:
-            shades (int): Number of shades to generate (default 5).
+            shades (int): Number of shades to generate (default 24).
 
         Returns:
             list: A list of RGB tuples representing the monochromatic palette.
