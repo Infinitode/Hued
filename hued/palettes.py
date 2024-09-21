@@ -136,7 +136,18 @@ class ColorPalette:
             self.palette.remove(rgb_color)
 
     def generate_random_palette(self):
-        """Generates a random base color and its associated palettes."""
+        """
+        Generates a random base color and its associated palettes.
+
+        Returns:
+            dict: A dictionary containing the following keys:
+                - 'Base Color' (tuple): The randomly generated RGB base color, e.g., (R, G, B).
+                - 'Complementary Palette' (list): A list of colors in the complementary palette.
+                - 'Analogous Palette' (list): A list of colors in the analogous palette.
+                - 'Triadic Palette' (list): A list of colors in the triadic palette.
+                - 'Monochromatic Palette' (list): A list of colors in the monochromatic palette.
+        """
+
         # Generate a random RGB color
         base_color = (
             random.randint(0, 255),
