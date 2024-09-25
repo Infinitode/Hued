@@ -64,6 +64,22 @@ def test_cmyk_to_rgb():
     assert result == expected_rgb, f"Expected {expected_rgb}, but got {result}"
     print(f"CMYK({c}, {m}, {y}, {k}) -> RGB: {result}")
 
+def test_hsl_to_hex():
+    hsl = (0, 1, 0.5)
+    result = hsl_to_hex(hsl)
+    assert result == "#FF0000", f"Expected '#FF0000', but got {result}"
+    print(f"HSL converted to HEX successfully: {result}")
+
+def test_blend_colors():
+    print("Testing blend_colors...")
+    color1 = (255, 0, 0)  # Red
+    color2 = (0, 0, 255)  # Blue
+    ratio = 0.5  # Equal blend
+    expected_color = (127, 0, 127)  # Purple (midpoint blend of red and blue)
+    result = blend_colors(color1, color2, ratio)
+    assert result == expected_color, f"Expected {expected_color}, but got {result}"
+    print(f"blend_colors({color1}, {color2}, {ratio}) -> RGB: {result}")
+
 def run_tests():
     test_rgb_to_hex()
     test_hex_to_rgb()
@@ -73,6 +89,9 @@ def run_tests():
     test_hsv_to_rgb()
     test_rgb_to_cmyk()
     test_cmyk_to_rgb()
+    test_hsl_to_hex()
+    test_blend_colors()
+
     print("All tests passed!")
 
 if __name__ == "__main__":

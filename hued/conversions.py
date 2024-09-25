@@ -224,3 +224,302 @@ def cmyk_to_rgb(c, m, y, k):
     b = 255 * (1 - y) * (1 - k)
 
     return round(r), round(g), round(b)
+
+def hex_to_hsl(hex_value: str) -> tuple:
+    """
+    Converts a hex color code to HSL (Hue, Saturation, Lightness).
+
+    Parameters:
+        hex_value (str): A string representing a hex color code (e.g., "#FFFFFF").
+
+    Returns:
+        tuple: A tuple representing the HSL values (h, s, l) where
+               h (float) is hue in the range [0, 360),
+               s (float) is saturation in the range [0, 1],
+               l (float) is lightness in the range [0, 1].
+    """
+    rgb = hex_to_rgb(hex_value)
+    return rgb_to_hsl(*rgb)
+
+def hex_to_hsv(hex_value: str) -> tuple:
+    """
+    Converts a hex color code to HSV (Hue, Saturation, Value).
+
+    Parameters:
+        hex_value (str): A string representing a hex color code (e.g., "#FFFFFF").
+
+    Returns:
+        tuple: A tuple representing the HSV values (h, s, v) where
+               h (float) is hue in the range [0, 360),
+               s (float) is saturation in the range [0, 1],
+               v (float) is value in the range [0, 1].
+    """
+    rgb = hex_to_rgb(hex_value)
+    return rgb_to_hsv(*rgb)
+
+def hex_to_cmyk(hex_value: str) -> tuple:
+    """
+    Converts a hex color code to CMYK (Cyan, Magenta, Yellow, Key/Black).
+
+    Parameters:
+        hex_value (str): A string representing a hex color code (e.g., "#FFFFFF").
+
+    Returns:
+        tuple: A tuple representing the CMYK values (c, m, y, k) where
+               c (float) is cyan in the range [0, 1],
+               m (float) is magenta in the range [0, 1],
+               y (float) is yellow in the range [0, 1],
+               k (float) is key/black in the range [0, 1].
+    """
+    rgb = hex_to_rgb(hex_value)
+    return rgb_to_cmyk(*rgb)
+
+def hsl_to_hex(hsl_value: tuple) -> str:
+    """
+    Converts HSL (Hue, Saturation, Lightness) to a hex color code.
+
+    Parameters:
+        hsl_value (tuple): A tuple representing the HSL values (h, s, l) where
+                           h (float) is hue in the range [0, 360),
+                           s (float) is saturation in the range [0, 1],
+                           l (float) is lightness in the range [0, 1].
+
+    Returns:
+        str: A string representing the hex color code (e.g., "#FFFFFF").
+
+    Raises:
+        ValueError: If the HSL values are out of range.
+    """
+    h, s, l = hsl_value
+    if not (0 <= h < 360 and 0 <= s <= 1 and 0 <= l <= 1):
+        raise ValueError("HSL values must be in range: h [0, 360), s [0, 1], l [0, 1]")
+
+    return rgb_to_hex(*hsl_to_rgb(h, s, l))
+
+def hsl_to_hsv(hsl_value: tuple) -> tuple:
+    """
+    Converts HSL (Hue, Saturation, Lightness) to HSV (Hue, Saturation, Value).
+
+    Parameters:
+        hsl_value (tuple): A tuple representing the HSL values (h, s, l) where
+                           h (float) is hue in the range [0, 360),
+                           s (float) is saturation in the range [0, 1],
+                           l (float) is lightness in the range [0, 1].
+
+    Returns:
+        tuple: A tuple representing the HSV values (h, s, v) where
+               h (float) is hue in the range [0, 360),
+               s (float) is saturation in the range [0, 1],
+               v (float) is value in the range [0, 1].
+
+    Raises:
+        ValueError: If the HSL values are out of range.
+    """
+    h, s, l = hsl_value
+    if not (0 <= h < 360 and 0 <= s <= 1 and 0 <= l <= 1):
+        raise ValueError("HSL values must be in range: h [0, 360), s [0, 1], l [0, 1]")
+
+    return rgb_to_hsv(*hsl_to_rgb(h, s, l))
+
+def hsl_to_cmyk(hsl_value: tuple) -> tuple:
+    """
+    Converts HSL (Hue, Saturation, Lightness) to CMYK (Cyan, Magenta, Yellow, Key/Black).
+
+    Parameters:
+        hsl_value (tuple): A tuple representing the HSL values (h, s, l) where
+                           h (float) is hue in the range [0, 360),
+                           s (float) is saturation in the range [0, 1],
+                           l (float) is lightness in the range [0, 1].
+
+    Returns:
+        tuple: A tuple representing the CMYK values (c, m, y, k) where
+               c (float) is cyan in the range [0, 1],
+               m (float) is magenta in the range [0, 1],
+               y (float) is yellow in the range [0, 1],
+               k (float) is key/black in the range [0, 1].
+
+    Raises:
+        ValueError: If the HSL values are out of range.
+    """
+    h, s, l = hsl_value
+    if not (0 <= h < 360 and 0 <= s <= 1 and 0 <= l <= 1):
+        raise ValueError("HSL values must be in range: h [0, 360), s [0, 1], l [0, 1]")
+
+    return rgb_to_cmyk(*hsl_to_rgb(h, s, l))
+
+def hsv_to_hex(hsv_value: tuple) -> str:
+    """
+    Converts HSV (Hue, Saturation, Value) to a hex color code.
+
+    Parameters:
+        hsv_value (tuple): A tuple representing the HSV values (h, s, v) where
+                           h (float) is hue in the range [0, 360),
+                           s (float) is saturation in the range [0, 1],
+                           v (float) is value in the range [0, 1].
+
+    Returns:
+        str: A string representing the hex color code (e.g., "#FFFFFF").
+
+    Raises:
+        ValueError: If the HSV values are out of range.
+    """
+    h, s, v = hsv_value
+    if not (0 <= h < 360 and 0 <= s <= 1 and 0 <= v <= 1):
+        raise ValueError("HSV values must be in range: h [0, 360), s [0, 1], v [0, 1]")
+
+    return rgb_to_hex(*hsv_to_rgb(h, s, v))
+
+def hsv_to_hsl(hsv_value: tuple) -> tuple:
+    """
+    Converts HSV (Hue, Saturation, Value) to HSL (Hue, Saturation, Lightness).
+
+    Parameters:
+        hsv_value (tuple): A tuple representing the HSV values (h, s, v) where
+                           h (float) is hue in the range [0, 360),
+                           s (float) is saturation in the range [0, 1],
+                           v (float) is value in the range [0, 1].
+
+    Returns:
+        tuple: A tuple representing the HSL values (h, s, l) where
+               h (float) is hue in the range [0, 360),
+               s (float) is saturation in the range [0, 1],
+               l (float) is lightness in the range [0, 1].
+
+    Raises:
+        ValueError: If the HSV values are out of range.
+    """
+    h, s, v = hsv_value
+    if not (0 <= h < 360 and 0 <= s <= 1 and 0 <= v <= 1):
+        raise ValueError("HSV values must be in range: h [0, 360), s [0, 1], v [0, 1]")
+
+    return rgb_to_hsl(*hsv_to_rgb(h, s, v))
+
+def hsv_to_cmyk(hsv_value: tuple) -> tuple:
+    """
+    Converts HSV (Hue, Saturation, Value) to CMYK (Cyan, Magenta, Yellow, Key/Black).
+
+    Parameters:
+        hsv_value (tuple): A tuple representing the HSV values (h, s, v) where
+                           h (float) is hue in the range [0, 360),
+                           s (float) is saturation in the range [0, 1],
+                           v (float) is value in the range [0, 1].
+
+    Returns:
+        tuple: A tuple representing the CMYK values (c, m, y, k) where
+               c (float) is cyan in the range [0, 1],
+               m (float) is magenta in the range [0, 1],
+               y (float) is yellow in the range [0, 1],
+               k (float) is key/black in the range [0, 1].
+
+    Raises:
+        ValueError: If the HSV values are out of range.
+    """
+    h, s, v = hsv_value
+    if not (0 <= h < 360 and 0 <= s <= 1 and 0 <= v <= 1):
+        raise ValueError("HSV values must be in range: h [0, 360), s [0, 1], v [0, 1]")
+
+    return rgb_to_cmyk(*hsv_to_rgb(h, s, v))
+
+def cmyk_to_hex(cmyk_value: tuple) -> str:
+    """
+    Converts CMYK (Cyan, Magenta, Yellow, Key/Black) to a hex color code.
+
+    Parameters:
+        cmyk_value (tuple): A tuple representing the CMYK values (c, m, y, k) where
+                            c (float) is cyan in the range [0, 1],
+                            m (float) is magenta in the range [0, 1],
+                            y (float) is yellow in the range [0, 1],
+                            k (float) is key/black in the range [0, 1].
+
+    Returns:
+        str: A string representing the hex color code (e.g., "#FFFFFF").
+
+    Raises:
+        ValueError: If the CMYK values are out of range.
+    """
+    c, m, y, k = cmyk_value
+    if not (0 <= c <= 1 and 0 <= m <= 1 and 0 <= y <= 1 and 0 <= k <= 1):
+        raise ValueError("CMYK values must be in range: c, m, y, k [0, 1]")
+
+    return rgb_to_hex(*cmyk_to_rgb(c, m, y, k))
+
+def cmyk_to_hsv(cmyk_value: tuple) -> tuple:
+    """
+    Converts CMYK (Cyan, Magenta, Yellow, Key/Black) to HSV (Hue, Saturation, Value).
+
+    Parameters:
+        cmyk_value (tuple): A tuple representing the CMYK values (c, m, y, k) where
+                            c (float) is cyan in the range [0, 1],
+                            m (float) is magenta in the range [0, 1],
+                            y (float) is yellow in the range [0, 1],
+                            k (float) is key/black in the range [0, 1].
+
+    Returns:
+        tuple: A tuple representing the HSV values (h, s, v) where
+               h (float) is hue in the range [0, 360),
+               s (float) is saturation in the range [0, 1],
+               v (float) is value in the range [0, 1].
+
+    Raises:
+        ValueError: If the CMYK values are out of range.
+    """
+    c, m, y, k = cmyk_value
+    if not (0 <= c <= 1 and 0 <= m <= 1 and 0 <= y <= 1 and 0 <= k <= 1):
+        raise ValueError("CMYK values must be in range: c, m, y, k [0, 1]")
+
+    return rgb_to_hsv(*cmyk_to_rgb(c, m, y, k))
+
+def cmyk_to_hsl(cmyk_value: tuple) -> tuple:
+    """
+    Converts CMYK (Cyan, Magenta, Yellow, Key/Black) to HSL (Hue, Saturation, Lightness).
+
+    Parameters:
+        cmyk_value (tuple): A tuple representing the CMYK values (c, m, y, k) where
+                            c (float) is cyan in the range [0, 1],
+                            m (float) is magenta in the range [0, 1],
+                            y (float) is yellow in the range [0, 1],
+                            k (float) is key/black in the range [0, 1].
+
+    Returns:
+        tuple: A tuple representing the HSL values (h, s, l) where
+               h (float) is hue in the range [0, 360),
+               s (float) is saturation in the range [0, 1],
+               l (float) is lightness in the range [0, 1].
+
+    Raises:
+        ValueError: If the CMYK values are out of range.
+    """
+    c, m, y, k = cmyk_value
+    if not (0 <= c <= 1 and 0 <= m <= 1 and 0 <= y <= 1 and 0 <= k <= 1):
+        raise ValueError("CMYK values must be in range: c, m, y, k [0, 1]")
+
+    return rgb_to_hsl(*cmyk_to_rgb(c, m, y, k))
+
+def blend_colors(color1, color2, ratio=0.5):
+    """
+    Blends two colors in the RGB format using the specified ratio.
+
+    This function takes two RGB colors and blends them based on the provided ratio.
+    A ratio of 0.5 will give an equal mix of both colors, while other ratios will
+    give more weight to one color over the other.
+
+    Parameters:
+        color1 (tuple): The first RGB color as a tuple of three integers (R, G, B).
+        color2 (tuple): The second RGB color as a tuple of three integers (R, G, B).
+        ratio (float, optional): The ratio to blend the colors. A value of 0.5 will
+                                 blend both colors equally. Values closer to 0 will
+                                 give more weight to `color1`, and values closer to
+                                 1 will favor `color2`. Default is 0.5.
+
+    Returns:
+        tuple: The blended color as an RGB tuple of three integers.
+
+    Example:
+        >>> blend_colors((255, 0, 0), (0, 0, 255), 0.5)
+        (127, 0, 127)
+    """
+    r = int(color1[0] * (1 - ratio) + color2[0] * ratio)
+    g = int(color1[1] * (1 - ratio) + color2[1] * ratio)
+    b = int(color1[2] * (1 - ratio) + color2[2] * ratio)
+
+    return (r, g, b)

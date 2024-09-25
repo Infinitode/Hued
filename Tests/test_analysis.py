@@ -1,4 +1,4 @@
-from hued.analysis import is_neutral, brightness, is_pastel, is_muted, is_vibrant
+from hued.analysis import is_neutral, brightness, is_pastel, is_muted, is_vibrant, color_contrast, get_text_color_from_background
 
 def test_is_neutral():
     print("Testing Neutral Color Check...")
@@ -40,12 +40,27 @@ def test_is_vibrant():
     assert is_vibrant(non_vibrant_color) == False, "Expected non-vibrant color to return False."
     print(f"Vibrant Color Test Passed: {vibrant_color} is vibrant.")
 
+def test_color_contrast():
+    print("Testing Color Contrast...")
+    color1 = (0, 255, 0)  # Green
+    color2 = (128, 128, 128)  # Gray
+    assert color_contrast(color1, color2) == 2.839124370809266, "Expected a contrast ratio of 2.839124370809266."
+    print("Color Contrast Test Passed.")
+
+def test_text_mode():
+    print("Testing Text Color, Based On A Background Color...")
+    background_color = (0, 0, 255) # Vibrant Blue
+    assert get_text_color_from_background(background_color) == "light", "Expected text color, to be `light`."
+    print("Text Background Color Test Passed.")
+
 def run_tests():
     test_is_neutral()
     test_brightness()
     test_is_pastel()
     test_is_muted()
     test_is_vibrant()
+    test_color_contrast()
+    test_text_mode()
     print("All tests passed!")
 
 if __name__ == "__main__":

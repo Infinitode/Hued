@@ -42,6 +42,47 @@ def test_generate_monochromatic():
     assert result == expected_monochromatic, f"Expected {expected_monochromatic}, but got {result}"
     print(f"Monochromatic Palette: {result}")
 
+def test_generate_tetradic():
+    print("Testing Tetradic Palette...")
+    base_color = (255, 60, 52)  # Example base color (Red)
+    palette = ColorPalette(base_color)
+    expected_tetradic = [
+        (255, 60, 52), # Base color
+        (145, 255, 51), # Tetradic 1
+        (51, 247, 255), # Tetradic 2
+        (161, 51, 255)  # Tetradic 3
+    ]
+    result = palette.generate_tetradic()
+    assert result == expected_tetradic, f"Expected {expected_tetradic}, but got {result}"
+    print(f"Tetradic Palette: {result}")
+
+def test_generate_square():
+    print("Testing Square Palette...")
+    base_color = (255, 60, 52)  # Example base color (Red)
+    palette = ColorPalette(base_color)
+    expected_square = [
+        (255, 60, 52), # Base color
+        (145, 255, 51), # Square 1
+        (51, 247, 255), # Square 2
+        (161, 51, 255) # Square 3
+    ]
+    result = palette.generate_square()
+    assert result == expected_square, f"Expected {expected_square}, but got {result}"
+    print(f"Square Palette: {result}")
+
+def test_generate_split_complementary():
+    print("Testing Split-Complementary Palette...")
+    base_color = (255, 60, 52)  # Example base color (Red)
+    palette = ColorPalette(base_color)
+    expected_split_complementary = [
+        (255, 60, 52),  # Base color
+        (51, 255, 161),  # Split Complementary 1
+        (51, 145, 255)   # Split Complementary 2
+    ]
+    result = palette.generate_split_complementary()
+    assert result == expected_split_complementary, f"Expected {expected_split_complementary}, but got {result}"
+    print(f"Split-Complementary Palette: {result}")
+
 def test_palette_to_hex():
     print("Testing Palette to HEX conversion...")
     base_color = (255, 60, 52)  # Red
@@ -64,13 +105,32 @@ def test_generate_random_palette():
     assert isinstance(result, dict), "Expected a dictionary for the random palette."
     print("Random Palette:", result)
 
+def test_generate_random_color():
+    print("Testing Random Color Generation...")
+    palette = ColorPalette((0, 0, 0))
+    result = palette.generate_random_color()
+    assert isinstance(result, dict), "Expected a dictionary for the random color."
+    print("Random Color:", result)
+
+def test_generate_random_hex_colors():
+    print("Testing Random HEX Colors Generation...")
+    palette = ColorPalette((0, 0, 0))
+    result = palette.generate_random_hex_colors()
+    assert isinstance(result, list), "Expected a list for the random HEX colors."
+    print("Random HEX Colors:", result)
+
 def run_tests():
     test_generate_complementary()
     test_generate_analogous()
     test_generate_triadic()
     test_generate_monochromatic()
+    test_generate_tetradic()
+    test_generate_square()
+    test_generate_split_complementary()
     test_palette_to_hex()
     test_generate_random_palette()
+    test_generate_random_color()
+    test_generate_random_hex_colors()
     print("All tests passed!")
 
 if __name__ == "__main__":
