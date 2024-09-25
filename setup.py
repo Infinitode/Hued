@@ -8,7 +8,7 @@ setup(
     description='An open-source Python library for color generation, conversion and retrieval of common properties, palettes, and color information.',
     long_description='An open-source Python library for color processing, random color generation, conversion between common types, and retrieval of common color properties, color palettes, and color information.',
     long_description_content_type='text/markdown',
-    url='https://github.com/infinitode/deepdefend',
+    url='https://github.com/infinitode/hued',
     packages=find_packages(),
     classifiers=[
         'Development Status :: 5 - Production/Stable',
