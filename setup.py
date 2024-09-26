@@ -1,12 +1,15 @@
 from setuptools import setup, find_packages
 
+with open("readme.md", "r", encoding="utf-8") as fh:
+    long_description = fh.read()
+
 setup(
     name='hued',
     version='{{VERSION_PLACEHOLDER}}',
     author='Infinitode Pty Ltd',
     author_email='infinitode.ltd@gmail.com',
-    description='An open-source Python library for color generation, conversion and retrieval of common properties, palettes, and color information.',
-    long_description='An open-source Python library for color processing, random color generation, conversion between common types, and retrieval of common color properties, color palettes, and color information.',
+    description='An open-source Python library for color processing, random color generation, conversion between common types, and retrieval of common color properties, color palettes, and color information.',
+    long_description=long_description,
     long_description_content_type='text/markdown',
     url='https://github.com/infinitode/hued',
     packages=find_packages(),
