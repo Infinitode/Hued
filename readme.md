@@ -7,6 +7,9 @@
 
 An open-source Python library for color generation, conversion, and retrieval of common properties, palettes, and color information.
 
+### Changes in version 1.0.4:
+- Updated `colors.py` with 500+ new color names to map to.
+
 ### Changes in version 1.0.3:
 - Created new functions for the `analiysis` module. Including `rgb_to_linear`, and other functions to return more color properties, like luminance and vibrancy. We've also added new functions to calculate the color contrast ratio between to colors, and an accessibility function to return if foreground text color should be `light`, or `dark`, based on the background color.
 - Created a new `blend_colors` function in our `conversions` module, to blend 2 RGB colors based on a given ratio. Also created new color conversion functions to convert each format into another target format, instead of just `RGB`.
