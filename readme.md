@@ -7,6 +7,9 @@
 
 An open-source Python library for color generation, conversion, and retrieval of common properties, palettes, and color information.
 
+### Changes in version 1.0.5:
+- New conversion methods for `XYZ` / `CIE 1931 XYZ`.
+
 ### Changes in version 1.0.4:
 - Updated `colors.py` with 500+ new color names to map to.
 

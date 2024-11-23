@@ -6,13 +6,36 @@ including RGB, HEX, HSL, HSV, and CMYK.
 
 Methods:
     - rgb_to_hex(r, g, b): Converts RGB to HEX.
-    - hex_to_rgb(hex_value): Converts HEX to RGB.
     - rgb_to_hsl(r, g, b): Converts RGB to HSL.
-    - hsl_to_rgb(h, s, l): Converts HSL to RGB.
     - rgb_to_hsv(r, g, b): Converts RGB to HSV.
-    - hsv_to_rgb(h, s, v): Converts HSV to RGB.
     - rgb_to_cmyk(r, g, b): Converts RGB to CMYK.
+    - rgb_to_xyz(r, g, b): Converts RGB to XYZ.
+    - hex_to_rgb(hex_value): Converts HEX to RGB.
+    - hex_to_hsl(hex_value): Converts HEX to HSL.
+    - hex_to_hsv(hex_value): Converts HEX to HSV.
+    - hex_to_cmyk(hex_value): Converts HEX to CMYK.
+    - hex_to_xyz(hex_value): Converts HEX to XYZ.
+    - hsl_to_rgb(h, s, l): Converts HSL to RGB.
+    - hsl_to_hex(hsl_value): Converts HSL to HEX.
+    - hsl_to_hsv(hsl_value): Converts HSL to HSV.
+    - hsl_to_cmyk(hsl_value): Converts HSL to CMYK.
+    - hsl_to_xyz(hsl_value): Converts HSL to XYZ.
+    - hsv_to_rgb(h, s, v): Converts HSV to RGB.
+    - hsv_to_hex(hsv_value): Converts HSV to HEX.
+    - hsv_to_hsl(hsv_value): Converts HSV to HSL.
+    - hsv_to_cmyk(hsv_value): Converts HSV to CMYK.
+    - hsv_to_xyz(hsv_value): Converts HSV to XYZ.
     - cmyk_to_rgb(c, m, y, k): Converts CMYK to RGB.
+    - cmyk_to_hex(cmyk_value): Converts CMYK to HEX.
+    - cmyk_to_hsl(cmyk_value): Converts CMYK to HSL.
+    - cmyk_to_hsv(cmyk_value): Converts CMYK to HSV.
+    - cmyk_to_xyz(cmyk_value): Converts CMYK to XYZ.
+    - xyz_to_rgb(x, y, z): Converts XYZ to RGB.
+    - xyz_to_hex(xyz_value): Converts XYZ to HEX.
+    - xyz_to_hsl(xyz_value): Converts XYZ to HSL.
+    - xyz_to_hsv(xyz_value): Converts XYZ to HSV.
+    - xyz_to_cmyk(xyz_value): Converts XYZ to CMYK.
+    - blend_colors(color1, color2, ratio=0.5): Blends two colors in the RGB format (tuple) using the specified ratio.
 """
 
 def rgb_to_hex(r, g, b):
@@ -494,6 +517,178 @@ def cmyk_to_hsl(cmyk_value: tuple) -> tuple:
         raise ValueError("CMYK values must be in range: c, m, y, k [0, 1]")
 
     return rgb_to_hsl(*cmyk_to_rgb(c, m, y, k))
+
+def rgb_to_xyz(r: int, g: int, b: int) -> tuple:
+    """
+    Converts RGB (Red, Green, Blue) to CIE 1931 XYZ color space.
+
+    Parameters:
+        r (int): Red component, in the range [0, 255].
+        g (int): Green component, in the range [0, 255].
+        b (int): Blue component, in the range [0, 255].
+
+    Returns:
+        tuple: A tuple representing the XYZ values (x, y, z), where:
+               x, y, z (float): Correspond to the CIE 1931 color space.
+
+    Raises:
+        ValueError: If any RGB value is out of range.
+    """
+    if not (0 <= r <= 255 and 0 <= g <= 255 and 0 <= b <= 255):
+        raise ValueError("RGB values must be in the range [0, 255].")
+
+    r_linear, g_linear, b_linear = [
+        (c / 255) ** 2.2 if c > 0.04045 else c / 255 / 12.92 for c in (r, g, b)
+    ]
+
+    x = 0.412453 * r_linear + 0.357580 * g_linear + 0.180423 * b_linear
+    y = 0.212671 * r_linear + 0.715160 * g_linear + 0.072169 * b_linear
+    z = 0.019334 * r_linear + 0.119193 * g_linear + 0.950227 * b_linear
+
+    return x, y, z
+
+
+def xyz_to_rgb(x: float, y: float, z: float) -> tuple:
+    """
+    Converts CIE 1931 XYZ to RGB (Red, Green, Blue) color space.
+
+    Parameters:
+        x (float): X component of the XYZ color space.
+        y (float): Y component of the XYZ color space.
+        z (float): Z component of the XYZ color space.
+
+    Returns:
+        tuple: A tuple representing the RGB values (r, g, b), where:
+               r, g, b (int): Red, Green, and Blue components, each in the range [0, 255].
+
+    Raises:
+        ValueError: If any resulting RGB values are outside the valid range after conversion.
+    """
+    r_linear = 3.240479 * x - 1.537150 * y - 0.498535 * z
+    g_linear = -0.969256 * x + 1.875992 * y + 0.041556 * z
+    b_linear = 0.055648 * x - 0.204043 * y + 1.057311 * z
+
+    r = r_linear ** (1 / 2.2)
+    g = g_linear ** (1 / 2.2)
+    b = b_linear ** (1 / 2.2)
+
+    r = max(0, min(r, 1)) * 255
+    g = max(0, min(g, 1)) * 255
+    b = max(0, min(b, 1)) * 255
+
+    return round(r), round(g), round(b)
+
+
+def hex_to_xyz(hex_value: str) -> tuple:
+    """
+    Converts a hexadecimal color code to CIE 1931 XYZ color space.
+
+    Parameters:
+        hex_value (str): A hexadecimal color code (e.g., '#RRGGBB').
+
+    Returns:
+        tuple: A tuple representing the XYZ values (x, y, z).
+    """
+    r, g, b = hex_to_rgb(hex_value)
+    return rgb_to_xyz(r, g, b)
+
+
+def xyz_to_hex(xyz_value: tuple) -> str:
+    """
+    Converts CIE 1931 XYZ to a hexadecimal color code.
+
+    Parameters:
+        xyz_value (tuple): A tuple of XYZ values (x, y, z).
+
+    Returns:
+        str: A hexadecimal color code (e.g., '#RRGGBB').
+    """
+    r, g, b = xyz_to_rgb(*xyz_value)
+    return rgb_to_hex(r, g, b)
+
+
+def hsl_to_xyz(hsl_value: tuple) -> tuple:
+    """
+    Converts HSL (Hue, Saturation, Lightness) to CIE 1931 XYZ color space.
+
+    Parameters:
+        hsl_value (tuple): A tuple representing the HSL values (h, s, l).
+
+    Returns:
+        tuple: A tuple representing the XYZ values (x, y, z).
+    """
+    r, g, b = hsl_to_rgb(*hsl_value)
+    return rgb_to_xyz(r, g, b)
+
+
+def xyz_to_hsl(xyz_value: tuple) -> tuple:
+    """
+    Converts CIE 1931 XYZ to HSL (Hue, Saturation, Lightness).
+
+    Parameters:
+        xyz_value (tuple): A tuple of XYZ values (x, y, z).
+
+    Returns:
+        tuple: A tuple representing the HSL values (h, s, l).
+    """
+    r, g, b = xyz_to_rgb(*xyz_value)
+    return rgb_to_hsl(r, g, b)
+
+
+def hsv_to_xyz(hsv_value: tuple) -> tuple:
+    """
+    Converts HSV (Hue, Saturation, Value) to CIE 1931 XYZ color space.
+
+    Parameters:
+        hsv_value (tuple): A tuple representing the HSV values (h, s, v).
+
+    Returns:
+        tuple: A tuple representing the XYZ values (x, y, z).
+    """
+    r, g, b = hsv_to_rgb(*hsv_value)
+    return rgb_to_xyz(r, g, b)
+
+
+def xyz_to_hsv(xyz_value: tuple) -> tuple:
+    """
+    Converts CIE 1931 XYZ to HSV (Hue, Saturation, Value).
+
+    Parameters:
+        xyz_value (tuple): A tuple of XYZ values (x, y, z).
+
+    Returns:
+        tuple: A tuple representing the HSV values (h, s, v).
+    """
+    r, g, b = xyz_to_rgb(*xyz_value)
+    return rgb_to_hsv(r, g, b)
+
+
+def xyz_to_cmyk(xyz_value: tuple) -> tuple:
+    """
+    Converts CIE 1931 XYZ to CMYK (Cyan, Magenta, Yellow, Key/Black).
+
+    Parameters:
+        xyz_value (tuple): A tuple of XYZ values (x, y, z).
+
+    Returns:
+        tuple: A tuple representing the CMYK values (c, m, y, k).
+    """
+    r, g, b = xyz_to_rgb(*xyz_value)
+    return rgb_to_cmyk(r, g, b)
+
+
+def cmyk_to_xyz(cmyk_value: tuple) -> tuple:
+    """
+    Converts CMYK (Cyan, Magenta, Yellow, Key/Black) to CIE 1931 XYZ color space.
+
+    Parameters:
+        cmyk_value (tuple): A tuple of CMYK values (c, m, y, k).
+
+    Returns:
+        tuple: A tuple representing the XYZ values (x, y, z).
+    """
+    r, g, b = cmyk_to_rgb(*cmyk_value)
+    return rgb_to_xyz(r, g, b)
 
 def blend_colors(color1, color2, ratio=0.5):
     """

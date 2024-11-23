@@ -12,6 +12,11 @@ Functions:
     - is_pastel: Checks if a color is pastel.
     - is_muted: Checks if a color is muted.
     - is_vibrant: Checks if a color is vibrant.
+    - rgb_to_linear: Convert RGB values to linear RGB.
+    - get_luminance: Calculate the relative luminance of an RGB color.
+    - get_vibrancy: Calculate the vibrancy of an RGB color.
+    - color_contrast: Calculates the contrast ratio between two colors using their RGB values.
+    - get_text_color_from_background: Determines whether the text should be "light" or "dark" based on the background color.
 """
 
 from hued.conversions import rgb_to_hsv
