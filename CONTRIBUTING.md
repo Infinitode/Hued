@@ -13,8 +13,8 @@ Thank you for considering contributing to **Hued**! Contributions, whether they 
 3. **Run Tests**  
    Before making changes, run tests to confirm that everything works.
 
-   > [!TIP]
-   > We sometimes include testing scripts in our projects for easy testing.
+> [!TIP]
+> We sometimes include testing scripts in our projects for easy testing.
 
 ## How to Contribute
 
