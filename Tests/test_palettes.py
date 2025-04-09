@@ -1,3 +1,4 @@
+import os
 from hued.palettes import ColorPalette
 
 def test_generate_complementary():
@@ -119,6 +120,74 @@ def test_generate_random_hex_colors():
     assert isinstance(result, list), "Expected a list for the random HEX colors."
     print("Random HEX Colors:", result)
 
+def test_generate_gradient():
+    print("Testing Gradient Generation...")
+    base_color = (255, 60, 52)  # Example base color (Red)
+    palette = ColorPalette(base_color)
+    start_color = (255, 60, 52)  # Start color (Red)
+    end_color = (51, 247, 255)  # End color (Cyan)
+    expected_gradient = [
+        (255, 60, 52),
+        (214, 97, 92),
+        (173, 134, 133),
+        (132, 172, 173),
+        (91, 209, 214),
+        (51, 247, 255)
+    ]
+    result = palette.generate_gradient(start_color, end_color, steps=5)
+    assert result == expected_gradient, f"Expected {expected_gradient}, but got {result}"
+    print(f"Gradient: {result}")
+
+def test_export_palette():
+    print("Testing Palette Export...")
+    base = (255, 60, 52) # Red
+    cp = ColorPalette(base)
+
+    # 1. Export a simple list palette (e.g., complementary)
+    print("Generating Complementary...")
+    comp_palette = cp.generate_complementary() # self.palette is now the complementary list
+    print(f"Current Palette (Complementary List): {cp.palette}")
+    try:
+        cp.export_palette("complementary_palette.json")
+        cp.export_palette("complementary_palette.txt")
+        cp.export_palette("complementary_palette.csv")
+        print("Exported complementary list palette.")
+    except Exception as e:
+        print(f"Error exporting complementary: {e}")
+
+
+    # 2. Generate and export a complex dictionary palette
+    print("\nGenerating Random Palette Dictionary...")
+    # Generate the dict and set it as the current palette
+    random_palette_dict = cp.generate_random_palette()
+    print(f"Current Palette (Random Dict): Keys = {cp.palette.keys()}")
+    try:
+        cp.export_palette("random_palette_structure.json")
+        cp.export_palette("random_palette_structure.txt")
+        cp.export_palette("random_palette_structure.csv")
+        print("Exported random dictionary palette.")
+    except Exception as e:
+        print(f"Error exporting random dict: {e}")
+
+    # 3. Generate a gradient (doesn't modify self.palette) and export it separately
+    print("\nGenerating Gradient...")
+    gradient = cp.generate_gradient((255, 0, 0), (0, 0, 255), steps=5)
+    # To export the gradient, temporarily set it as the palette
+    original_palette = cp.palette # Save current palette
+    cp.palette = gradient
+    print(f"Current Palette (Gradient List): {cp.palette}")
+    try:
+        cp.export_palette("gradient_palette.json")
+        cp.export_palette("gradient_palette.txt")
+        cp.export_palette("gradient_palette.csv")
+        print("Exported gradient list palette.")
+    except Exception as e:
+        print(f"Error exporting gradient: {e}")
+    finally:
+        cp.palette = original_palette # Restore previous palette
+
+    print("\Exporting complete.")
+
 def run_tests():
     test_generate_complementary()
     test_generate_analogous()
@@ -131,6 +200,8 @@ def run_tests():
     test_generate_random_palette()
     test_generate_random_color()
     test_generate_random_hex_colors()
+    test_generate_gradient()
+    test_export_palette()
     print("All tests passed!")
 
 if __name__ == "__main__":

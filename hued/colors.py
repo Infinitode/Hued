@@ -1,22 +1,3 @@
-"""
-Module: colors.py
-
-This module provides functionality for working with a predefined list of named colors.
-It includes methods to search for the closest color name given a hex value and to retrieve 
-color information such as RGB and HEX values.
-
-Classes:
-    - ColorManager: Manages predefined color data and provides search functionality.
-
-Methods:
-    - ColorManager.__init__: Initializes the color manager with a predefined list of colors.
-    - ColorManager.hex_to_rgb: Converts a hex color code to RGB.
-    - ColorManager.rgb_to_hex: Converts RGB values to a hex color code.
-    - ColorManager.closest_color_name: Finds the closest color name given a hex value.
-    - ColorManager.get_color_by_name: Returns the hex and RGB values of a color based on its name.
-"""
-
-
 class ColorManager:
     """
     Manages a collection of predefined named colors and provides methods for color search

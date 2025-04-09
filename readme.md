@@ -7,6 +7,9 @@
 
 An open-source Python library for color generation, conversion, and retrieval of common properties, palettes, and color information.
 
+### Changes in version 1.0.6:
+- New functions under `ColorPalette` to create gradients and to export `ColorPalette` data as a CSV, TXT or JSON file.
+
 ### Changes in version 1.0.5:
 - New conversion methods for `XYZ` / `CIE 1931 XYZ`.
 

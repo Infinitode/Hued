@@ -1,24 +1,3 @@
-"""
-Module: analysis.py
-
-This module provides functions to analyze the properties of colors.
-It includes methods to determine the temperature, neutrality, brightness,
-and whether a color is pastel, muted, or vibrant.
-
-Functions:
-    - get_temperature: Determines the temperature of a color based on its RGB values.
-    - is_neutral: Checks if a color is neutral.
-    - brightness: Calculates the brightness of a color.
-    - is_pastel: Checks if a color is pastel.
-    - is_muted: Checks if a color is muted.
-    - is_vibrant: Checks if a color is vibrant.
-    - rgb_to_linear: Convert RGB values to linear RGB.
-    - get_luminance: Calculate the relative luminance of an RGB color.
-    - get_vibrancy: Calculate the vibrancy of an RGB color.
-    - color_contrast: Calculates the contrast ratio between two colors using their RGB values.
-    - get_text_color_from_background: Determines whether the text should be "light" or "dark" based on the background color.
-"""
-
 from hued.conversions import rgb_to_hsv
 
 def get_temperature(rgb):
