@@ -186,7 +186,7 @@ def test_export_palette():
     finally:
         cp.palette = original_palette # Restore previous palette
 
-    print("\Exporting complete.")
+    print("\nExporting complete.")
 
 def run_tests():
     test_generate_complementary()
