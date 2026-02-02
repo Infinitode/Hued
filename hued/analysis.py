@@ -210,3 +210,85 @@ def get_text_color_from_background(background_color):
             return "dark"  # Use dark text for readability
         else:
             return "light"  # Use light text for vibrant bright colors
+
+def check_color_quality(rgb):
+    """
+    Evaluates if a color is of 'good quality' for UI/text usage.
+
+    This function simulates a color visibility tester by checking the color's
+    contrast ratio against standard black and white backgrounds. A color is
+    considered 'good quality' if it meets the WCAG AA standard (contrast ratio >= 4.5)
+    against at least one of the backgrounds.
+
+    Parameters:
+        rgb (tuple): A tuple containing the RGB values (r, g, b).
+
+    Returns:
+        dict: A dictionary containing:
+            - 'contrast_with_black' (float): Contrast ratio with black.
+            - 'contrast_with_white' (float): Contrast ratio with white.
+            - 'is_good_quality' (bool): True if legible on black or white.
+    """
+    black = (0, 0, 0)
+    white = (255, 255, 255)
+
+    contrast_black = color_contrast(rgb, black)
+    contrast_white = color_contrast(rgb, white)
+
+    # WCAG AA requires 4.5:1 for normal text
+    is_good = contrast_black >= 4.5 or contrast_white >= 4.5
+
+    return {
+        "contrast_with_black": round(contrast_black, 2),
+        "contrast_with_white": round(contrast_white, 2),
+        "is_good_quality": is_good
+    }
+
+def simulate_color_blindness(rgb, blindness_type="protanopia", intensity=1.0):
+    """
+    Simulates color blindness on a given RGB color.
+
+    Parameters:
+        rgb (tuple): A tuple containing the RGB values (r, g, b).
+        blindness_type (str): The type of color blindness to simulate.
+                              Options: 'protanopia', 'deuteranopia', 'tritanopia', 'achromatopsia'.
+                              Default is 'protanopia'.
+        intensity (float): The intensity of the simulation (0.0 to 1.0).
+                           Default is 1.0 (full simulation).
+
+    Returns:
+        tuple: A tuple representing the simulated RGB values.
+    """
+    if not (0 <= intensity <= 1):
+        raise ValueError("Intensity must be between 0 and 1.")
+
+    blindness_type = blindness_type.lower()
+
+    # Matrices for color blindness simulation (approximate for sRGB/Linear)
+    matrices = {
+        "protanopia": [[0.567, 0.433, 0.0], [0.558, 0.442, 0.0], [0.0, 0.242, 0.758]],
+        "deuteranopia": [[0.625, 0.375, 0.0], [0.7, 0.3, 0.0], [0.0, 0.3, 0.7]],
+        "tritanopia": [[0.95, 0.05, 0.0], [0.0, 0.433, 0.567], [0.0, 0.475, 0.525]],
+        "achromatopsia": [[0.299, 0.587, 0.114], [0.299, 0.587, 0.114], [0.299, 0.587, 0.114]]
+    }
+
+    if blindness_type not in matrices:
+        raise ValueError(f"Unknown blindness type: {blindness_type}")
+
+    matrix = matrices[blindness_type]
+    r_lin, g_lin, b_lin = rgb_to_linear(rgb)
+
+    r_sim = r_lin * matrix[0][0] + g_lin * matrix[0][1] + b_lin * matrix[0][2]
+    g_sim = r_lin * matrix[1][0] + g_lin * matrix[1][1] + b_lin * matrix[1][2]
+    b_sim = r_lin * matrix[2][0] + g_lin * matrix[2][1] + b_lin * matrix[2][2]
+
+    # Convert back to sRGB (using simplified gamma 2.2 to match rgb_to_linear)
+    def lin_to_srgb(c): return c ** (1 / 2.2)
+    r_final, g_final, b_final = lin_to_srgb(max(0, r_sim)) * 255, lin_to_srgb(max(0, g_sim)) * 255, lin_to_srgb(max(0, b_sim)) * 255
+
+    return (
+        max(0, min(255, int(rgb[0] * (1 - intensity) + r_final * intensity))),
+        max(0, min(255, int(rgb[1] * (1 - intensity) + g_final * intensity))),
+        max(0, min(255, int(rgb[2] * (1 - intensity) + b_final * intensity)))
+    )
+    
