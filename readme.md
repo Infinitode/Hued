@@ -10,6 +10,9 @@ An open-source Python library for color generation, conversion, and retrieval of
 ### Changes in version 1.0.7:
 - 2 new functions in `hued.analysis` for testing color visibility and quality, and simulating color blindness.
 
+> [!NOTE]
+> New functions and methods won't be included in the `Tests` folder. View our documentation for the most recent and up-to-date use of this package, https://infinitode-docs.gitbook.io/documentation/package-documentation/hued-package-documentation.
+
 ### Changes in version 1.0.6:
 - New functions under `ColorPalette` to create gradients and to export `ColorPalette` data as a CSV, TXT or JSON file.
 
