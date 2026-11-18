@@ -60,7 +60,7 @@ See [CHANGELOG.md](CHANGELOG.md) for the full list of fixes and additions.
 pip install hued
 ```
 
-**Supported Python versions:** Python **3.9+** (tested on 3.9, 3.10, 3.11, 3.12, and 3.13; compatible with 3.14). Zero external runtime dependencies.
+**Supported Python versions:** Python **3.9+** (CI-tested across Python 3.10–3.14). Zero external runtime dependencies.
 
 ## Features
 
