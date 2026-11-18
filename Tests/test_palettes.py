@@ -1,208 +1,202 @@
-import os
+"""Comprehensive unit tests for hued.palettes and package metadata."""
+
+from __future__ import annotations
+
+import csv
+import json
+from pathlib import Path
+
+import pytest
+
+import hued
 from hued.palettes import ColorPalette
 
-def test_generate_complementary():
-    print("Testing Complementary Palette...")
-    base_color = (255, 60, 52)  # Red
-    palette = ColorPalette(base_color)
-    expected_complementary = [(255, 60, 52), (51, 247, 255)]  # Adjust as needed
-    result = palette.generate_complementary()
-    assert result == expected_complementary, f"Expected {expected_complementary}, but got {result}"
-    print(f"Complementary Palette: {result}")
 
-def test_generate_analogous():
-    print("Testing Analogous Palette...")
-    base_color = (255, 60, 52)  # Red
-    palette = ColorPalette(base_color)
-    expected_analogous = [(255, 51, 145), (255, 60, 52), (255, 161, 51)]  # Adjust as needed
-    result = palette.generate_analogous()
-    assert result == expected_analogous, f"Expected {expected_analogous}, but got {result}"
-    print(f"Analogous Palette: {result}")
+class TestHarmonySchemes:
+    BASE = (255, 60, 52)
 
-def test_generate_triadic():
-    print("Testing Triadic Palette...")
-    base_color = (255, 60, 52)  # Red
-    palette = ColorPalette(base_color)
-    expected_triadic = [(255, 60, 52), (51, 255, 59), (59, 51, 255)]  # Adjust as needed
-    result = palette.generate_triadic()
-    assert result == expected_triadic, f"Expected {expected_triadic}, but got {result}"
-    print(f"Triadic Palette: {result}")
+    def test_init_validation(self) -> None:
+        p = ColorPalette([255, 60, 52])
+        assert p.base_color == (255, 60, 52)
+        assert p.palette == [(255, 60, 52)]
 
-def test_generate_monochromatic():
-    print("Testing Monochromatic Palette...")
-    base_color = (255, 60, 52)  # Red
-    palette = ColorPalette(base_color)
-    expected_monochromatic = [(51, 2, 0), (73, 3, 0), (95, 4, 0), (118, 5, 0),
-                              (140, 5, 0), (162, 6, 0), (184, 7, 0), (206, 8, 0),
-                              (228, 9, 0), (251, 10, 0), (255, 27, 18), (255, 48, 40),
-                              (255, 70, 62), (255, 91, 84), (255, 112, 106),
-                              (255, 134, 129), (255, 155, 151), (255, 176, 173),
-                              (255, 197, 195), (255, 219, 217), (255, 240, 239),
-                              (255, 255, 255)]  # Adjust as needed
-    result = palette.generate_monochromatic()
-    assert result == expected_monochromatic, f"Expected {expected_monochromatic}, but got {result}"
-    print(f"Monochromatic Palette: {result}")
+        with pytest.raises(ValueError):
+            ColorPalette((256, 0, 0))
+        with pytest.raises(ValueError):
+            ColorPalette((255, 0))
+        with pytest.raises(TypeError):
+            ColorPalette("#FF0000")  # type: ignore[arg-type]
 
-def test_generate_tetradic():
-    print("Testing Tetradic Palette...")
-    base_color = (255, 60, 52)  # Example base color (Red)
-    palette = ColorPalette(base_color)
-    expected_tetradic = [
-        (255, 60, 52), # Base color
-        (145, 255, 51), # Tetradic 1
-        (51, 247, 255), # Tetradic 2
-        (161, 51, 255)  # Tetradic 3
-    ]
-    result = palette.generate_tetradic()
-    assert result == expected_tetradic, f"Expected {expected_tetradic}, but got {result}"
-    print(f"Tetradic Palette: {result}")
+    def test_complementary_analogous_triadic_split(self) -> None:
+        palette = ColorPalette(self.BASE)
+        assert palette.generate_complementary() == [(255, 60, 52), (51, 247, 255)]
+        assert palette.generate_analogous() == [(255, 51, 145), (255, 60, 52), (255, 161, 51)]
+        assert palette.generate_triadic() == [(255, 60, 52), (51, 255, 59), (59, 51, 255)]
+        assert palette.generate_split_complementary() == [
+            (255, 60, 52),
+            (51, 255, 161),
+            (51, 145, 255),
+        ]
 
-def test_generate_square():
-    print("Testing Square Palette...")
-    base_color = (255, 60, 52)  # Example base color (Red)
-    palette = ColorPalette(base_color)
-    expected_square = [
-        (255, 60, 52), # Base color
-        (145, 255, 51), # Square 1
-        (51, 247, 255), # Square 2
-        (161, 51, 255) # Square 3
-    ]
-    result = palette.generate_square()
-    assert result == expected_square, f"Expected {expected_square}, but got {result}"
-    print(f"Square Palette: {result}")
+    def test_tetradic_distinct_from_square(self) -> None:
+        palette = ColorPalette(self.BASE)
+        square = palette.generate_square()
+        assert square == [(255, 60, 52), (145, 255, 51), (51, 247, 255), (161, 51, 255)]
 
-def test_generate_split_complementary():
-    print("Testing Split-Complementary Palette...")
-    base_color = (255, 60, 52)  # Example base color (Red)
-    palette = ColorPalette(base_color)
-    expected_split_complementary = [
-        (255, 60, 52),  # Base color
-        (51, 255, 161),  # Split Complementary 1
-        (51, 145, 255)   # Split Complementary 2
-    ]
-    result = palette.generate_split_complementary()
-    assert result == expected_split_complementary, f"Expected {expected_split_complementary}, but got {result}"
-    print(f"Split-Complementary Palette: {result}")
+        tetradic = palette.generate_tetradic()  # default angle=60 (rectangular)
+        assert len(tetradic) == 4
+        assert tetradic != square
+        assert palette.generate_tetradic(angle=90) == square
 
-def test_palette_to_hex():
-    print("Testing Palette to HEX conversion...")
-    base_color = (255, 60, 52)  # Red
-    palette = ColorPalette(base_color)
-    palette.generate_monochromatic()  # Generate to test conversion
-    expected_hex = ['#330200', '#490300', '#5F0400', '#760500',
-                    '#8C0500', '#A20600', '#B80700', '#CE0800',
-                    '#E40900', '#FB0A00', '#FF1B12', '#FF3028',
-                    '#FF463E', '#FF5B54', '#FF706A', '#FF8681',
-                    '#FF9B97', '#FFB0AD', '#FFC5C3', '#FFDBD9',
-                    '#FFF0EF', '#FFFFFF']  # Adjust as needed
-    result = palette.palette_to_hex()
-    assert result == expected_hex, f"Expected {expected_hex}, but got {result}"
-    print(f"Palette in HEX: {result}")
+    def test_monochromatic_and_edge_cases(self) -> None:
+        palette = ColorPalette(self.BASE)
+        expected = [
+            (51, 2, 0), (73, 3, 0), (95, 4, 0), (118, 5, 0),
+            (140, 5, 0), (162, 6, 0), (184, 7, 0), (206, 8, 0),
+            (228, 9, 0), (251, 10, 0), (255, 27, 18), (255, 48, 40),
+            (255, 70, 62), (255, 91, 84), (255, 112, 106),
+            (255, 134, 129), (255, 155, 151), (255, 176, 173),
+            (255, 197, 195), (255, 219, 217), (255, 240, 239),
+            (255, 255, 255),
+        ]
+        assert palette.generate_monochromatic() == expected
+        assert palette.palette_to_hex() == [
+            "#330200", "#490300", "#5F0400", "#760500",
+            "#8C0500", "#A20600", "#B80700", "#CE0800",
+            "#E40900", "#FB0A00", "#FF1B12", "#FF3028",
+            "#FF463E", "#FF5B54", "#FF706A", "#FF8681",
+            "#FF9B97", "#FFB0AD", "#FFC5C3", "#FFDBD9",
+            "#FFF0EF", "#FFFFFF",
+        ]
 
-def test_generate_random_palette():
-    print("Testing Random Palette Generation...")
-    palette = ColorPalette((0, 0, 0))  # Base color not used in random generation
-    result = palette.generate_random_palette()
-    assert isinstance(result, dict), "Expected a dictionary for the random palette."
-    print("Random Palette:", result)
-
-def test_generate_random_color():
-    print("Testing Random Color Generation...")
-    palette = ColorPalette((0, 0, 0))
-    result = palette.generate_random_color()
-    assert isinstance(result, dict), "Expected a dictionary for the random color."
-    print("Random Color:", result)
-
-def test_generate_random_hex_colors():
-    print("Testing Random HEX Colors Generation...")
-    palette = ColorPalette((0, 0, 0))
-    result = palette.generate_random_hex_colors()
-    assert isinstance(result, list), "Expected a list for the random HEX colors."
-    print("Random HEX Colors:", result)
-
-def test_generate_gradient():
-    print("Testing Gradient Generation...")
-    base_color = (255, 60, 52)  # Example base color (Red)
-    palette = ColorPalette(base_color)
-    start_color = (255, 60, 52)  # Start color (Red)
-    end_color = (51, 247, 255)  # End color (Cyan)
-    expected_gradient = [
-        (255, 60, 52),
-        (214, 97, 92),
-        (173, 134, 133),
-        (132, 172, 173),
-        (91, 209, 214),
-        (51, 247, 255)
-    ]
-    result = palette.generate_gradient(start_color, end_color, steps=5)
-    assert result == expected_gradient, f"Expected {expected_gradient}, but got {result}"
-    print(f"Gradient: {result}")
-
-def test_export_palette():
-    print("Testing Palette Export...")
-    base = (255, 60, 52) # Red
-    cp = ColorPalette(base)
-
-    # 1. Export a simple list palette (e.g., complementary)
-    print("Generating Complementary...")
-    comp_palette = cp.generate_complementary() # self.palette is now the complementary list
-    print(f"Current Palette (Complementary List): {cp.palette}")
-    try:
-        cp.export_palette("complementary_palette.json")
-        cp.export_palette("complementary_palette.txt")
-        cp.export_palette("complementary_palette.csv")
-        print("Exported complementary list palette.")
-    except Exception as e:
-        print(f"Error exporting complementary: {e}")
+        # Regression: shades=1 previously raised ZeroDivisionError
+        assert palette.generate_monochromatic(shades=1) == [self.BASE]
+        with pytest.raises(ValueError):
+            palette.generate_monochromatic(shades=0)
+        with pytest.raises(TypeError):
+            palette.generate_monochromatic(shades=True)  # type: ignore[arg-type]
 
 
-    # 2. Generate and export a complex dictionary palette
-    print("\nGenerating Random Palette Dictionary...")
-    # Generate the dict and set it as the current palette
-    random_palette_dict = cp.generate_random_palette()
-    print(f"Current Palette (Random Dict): Keys = {cp.palette.keys()}")
-    try:
-        cp.export_palette("random_palette_structure.json")
-        cp.export_palette("random_palette_structure.txt")
-        cp.export_palette("random_palette_structure.csv")
-        print("Exported random dictionary palette.")
-    except Exception as e:
-        print(f"Error exporting random dict: {e}")
+class TestMutationRandomAndGradients:
+    def test_random_palette_and_dict_palette_to_hex(self) -> None:
+        palette = ColorPalette((10, 20, 30))
 
-    # 3. Generate a gradient (doesn't modify self.palette) and export it separately
-    print("\nGenerating Gradient...")
-    gradient = cp.generate_gradient((255, 0, 0), (0, 0, 255), steps=5)
-    # To export the gradient, temporarily set it as the palette
-    original_palette = cp.palette # Save current palette
-    cp.palette = gradient
-    print(f"Current Palette (Gradient List): {cp.palette}")
-    try:
-        cp.export_palette("gradient_palette.json")
-        cp.export_palette("gradient_palette.txt")
-        cp.export_palette("gradient_palette.csv")
-        print("Exported gradient list palette.")
-    except Exception as e:
-        print(f"Error exporting gradient: {e}")
-    finally:
-        cp.palette = original_palette # Restore previous palette
+        # set_as_current=False preserves base_color and palette
+        preview = palette.generate_random_palette(set_as_current=False)
+        assert isinstance(preview, dict)
+        assert palette.base_color == (10, 20, 30)
+        assert palette.palette == [(10, 20, 30)]
 
-    print("\nExporting complete.")
+        # set_as_current=True sets dict palette, and palette_to_hex() works on it
+        current = palette.generate_random_palette(set_as_current=True)
+        assert palette.palette is current
+        hex_dict = palette.palette_to_hex()
+        assert isinstance(hex_dict, dict)
+        assert set(hex_dict.keys()) == set(current.keys())
+        assert isinstance(hex_dict["Base Color"], str) and hex_dict["Base Color"].startswith("#")
+        assert all(h.startswith("#") for h in hex_dict["Triadic Palette"])
 
-def run_tests():
-    test_generate_complementary()
-    test_generate_analogous()
-    test_generate_triadic()
-    test_generate_monochromatic()
-    test_generate_tetradic()
-    test_generate_square()
-    test_generate_split_complementary()
-    test_palette_to_hex()
-    test_generate_random_palette()
-    test_generate_random_color()
-    test_generate_random_hex_colors()
-    test_generate_gradient()
-    test_export_palette()
-    print("All tests passed!")
+        # add_color / remove_color raise clear TypeError on dict palettes
+        with pytest.raises(TypeError):
+            palette.add_color((1, 2, 3))
+        with pytest.raises(TypeError):
+            palette.remove_color((1, 2, 3))
+
+    def test_add_remove_and_random_colors(self) -> None:
+        palette = ColorPalette((0, 0, 0))
+        palette.add_color((255, 255, 255))
+        assert palette.palette == [(0, 0, 0), (255, 255, 255)]
+        palette.remove_color((0, 0, 0))
+        assert palette.palette == [(255, 255, 255)]
+
+        color = palette.generate_random_color()
+        assert set(color.keys()) == {"RGB Color", "HEX Color", "HSL Color"}
+        hexes = palette.generate_random_hex_colors(5)
+        assert len(hexes) == 5 and all(len(h) == 7 and h.startswith("#") for h in hexes)
+        assert palette.generate_random_hex_colors(0) == []
+        with pytest.raises(ValueError):
+            palette.generate_random_hex_colors(-1)
+
+    @pytest.mark.parametrize("space", ["rgb", "linear", "lab", "hsl"])
+    def test_generate_gradient_spaces(self, space: str) -> None:
+        palette = ColorPalette((255, 60, 52))
+        start, end = (255, 60, 52), (51, 247, 255)
+        grad = palette.generate_gradient(start, end, steps=5, space=space)
+        assert len(grad) == 6
+        assert grad[0] == start
+        assert grad[-1] == end
+        # Does not mutate self.palette
+        assert palette.palette == [(255, 60, 52)]
+
+        # Self-gradient identity (regression for int() truncation on (3, 3, 3))
+        assert palette.generate_gradient((3, 3, 3), (3, 3, 3), steps=5, space=space) == [
+            (3, 3, 3)
+        ] * 6
+
+    def test_generate_gradient_validation(self) -> None:
+        palette = ColorPalette((0, 0, 0))
+        with pytest.raises(ValueError):
+            palette.generate_gradient((0, 0, 0), (255, 255, 255), steps=0)
+        with pytest.raises(ValueError):
+            palette.generate_gradient((0, 0, 0), (255, 255, 255), steps=3, space="cmyk")
+
+
+class TestExportAndMetadata:
+    def test_export_list_and_dict_all_formats(self, tmp_path: Path) -> None:
+        sub = tmp_path / "dir.with.dots"
+        sub.mkdir()
+
+        cp = ColorPalette((255, 60, 52))
+        cp.generate_complementary()
+
+        json_path = sub / "comp.json"
+        txt_path = sub / "comp.txt"
+        csv_path = sub / "comp.csv"
+        css_path = sub / "comp.css"
+
+        cp.export_palette(json_path)
+        cp.export_palette(str(txt_path))
+        cp.export_palette(csv_path)
+        cp.export_palette(css_path)
+
+        data = json.loads(json_path.read_text(encoding="utf-8"))
+        assert data == [
+            {"rgb": [255, 60, 52], "hex": "#FF3C34"},
+            {"rgb": [51, 247, 255], "hex": "#33F7FF"},
+        ]
+        assert "#FF3C34" in txt_path.read_text(encoding="utf-8")
+        with csv_path.open(encoding="utf-8") as fh:
+            rows = list(csv.reader(fh))
+        assert rows[0] == ["Type", "Index", "Hex", "R", "G", "B"]
+        assert rows[1] == ["Simple Palette", "0", "#FF3C34", "255", "60", "52"]
+        css_text = css_path.read_text(encoding="utf-8")
+        assert "--palette-color-0: #FF3C34;" in css_text
+
+        # Dictionary export
+        cp.generate_random_palette()
+        for ext in (".json", ".txt", ".csv", ".css"):
+            out = sub / f"random{ext}"
+            cp.export_palette(out)
+            assert out.stat().st_size > 0
+
+        # Regression: extensionless filename named "json" must be rejected
+        with pytest.raises(ValueError):
+            cp.export_palette(sub / "json")
+        with pytest.raises(ValueError):
+            cp.export_palette(sub / "palette.xml")
+
+        cp.palette = []
+        with pytest.raises(ValueError):
+            cp.export_palette(sub / "empty.json")
+
+    def test_package_version_and_typing_marker(self) -> None:
+        repo_root = Path(__file__).resolve().parent.parent
+        pyproject_text = (repo_root / "pyproject.toml").read_text(encoding="utf-8")
+        assert f'version = "{hued.__version__}"' in pyproject_text
+        assert (Path(hued.__file__).resolve().parent / "py.typed").is_file()
+        for symbol in hued.__all__:
+            assert hasattr(hued, symbol), f"Missing export: {symbol}"
+
 
 if __name__ == "__main__":
-    run_tests()
+    raise SystemExit(pytest.main([__file__]))

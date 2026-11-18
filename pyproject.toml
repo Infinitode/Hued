@@ -1,0 +1,84 @@
+[build-system]
+requires = ["setuptools>=77.0.3", "wheel"]
+build-backend = "setuptools.build_meta"
+
+[project]
+name = "hued"
+version = "1.1.0"
+description = "An open-source, zero-dependency Python library for color conversion, WCAG accessibility analysis, perceptual color difference, harmonious palette generation, and named color lookup."
+readme = "readme.md"
+requires-python = ">=3.9"
+authors = [{ name = "Infinitode Pty Ltd", email = "infinitode.ltd@gmail.com" }]
+keywords = [
+    "color",
+    "colour",
+    "palette",
+    "rgb",
+    "hex",
+    "hsl",
+    "hsv",
+    "cmyk",
+    "xyz",
+    "lab",
+    "wcag",
+    "contrast",
+    "accessibility",
+    "color-blindness",
+    "delta-e",
+    "gradient",
+]
+# MIT with an additional clause requiring substantial derivative works to be
+# distributed under a different name; LicenseRef-* is the SPDX expression for
+# non-standard/modified licenses (PEP 639).
+license = "LicenseRef-MIT-Modified"
+license-files = ["LICENSE"]
+dependencies = []
+classifiers = [
+    "Development Status :: 5 - Production/Stable",
+    "Intended Audience :: Developers",
+    "Operating System :: OS Independent",
+    "Programming Language :: Python :: 3",
+    "Programming Language :: Python :: 3 :: Only",
+    "Programming Language :: Python :: 3.9",
+    "Programming Language :: Python :: 3.10",
+    "Programming Language :: Python :: 3.11",
+    "Programming Language :: Python :: 3.12",
+    "Programming Language :: Python :: 3.13",
+    "Programming Language :: Python :: 3.14",
+    "Topic :: Multimedia :: Graphics",
+    "Topic :: Software Development :: Libraries :: Python Modules",
+    "Typing :: Typed",
+]
+
+[project.optional-dependencies]
+dev = [
+    "pytest>=8.0",
+    "ruff>=0.6",
+    "build>=1.2",
+    "twine>=5.0",
+]
+
+[project.urls]
+Homepage = "https://github.com/Infinitode/Hued"
+Repository = "https://github.com/Infinitode/Hued"
+Documentation = "https://infinitode-docs.gitbook.io/documentation/package-documentation/hued-package-documentation"
+Issues = "https://github.com/Infinitode/Hued/issues"
+Changelog = "https://github.com/Infinitode/Hued/blob/main/CHANGELOG.md"
+
+[tool.setuptools]
+packages = ["hued"]
+
+[tool.setuptools.package-data]
+hued = ["py.typed"]
+
+[tool.pytest.ini_options]
+testpaths = ["Tests"]
+
+[tool.ruff]
+line-length = 100
+target-version = "py39"
+exclude = [".git", "build", "dist", "venv", ".venv"]
+
+[tool.ruff.lint]
+select = ["E", "F", "W", "I", "B", "UP"]
+ignore = ["E501", "E741"]
