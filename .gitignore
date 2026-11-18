@@ -1,5 +1,13 @@
-__pycache__
-*.pyc
+__pycache__/
+*.py[cod]
+*$py.class
+*.egg-info/
 dist/
 build/
 venv/
+.venv/
+.pytest_cache/
+.ruff_cache/
+.mypy_cache/
+.coverage
+coverage/
