@@ -1,6 +1,9 @@
 name: Publish Python 🐍 distributions 📦 to PyPI
 
 # Triggered by pushing a version tag such as `1.1.0` or `v1.1.0`.
+# Publishes to PyPI (with PEP 740 provenance) and records GitHub SLSA build
+# provenance attestations — without storing workflow artifacts or creating
+# GitHub Releases.
 #
 # PyPI Trusted Publisher configuration (https://pypi.org/manage/project/hued/settings/publishing/):
 #   PyPI Project Name : hued
@@ -15,7 +18,7 @@ on:
       - "v[0-9]*.*"
 
 # Strict least privilege at the workflow root; elevated permissions are granted
-# only on the isolated jobs that require them.
+# only on the publish job.
 permissions:
   contents: read
 
@@ -24,8 +27,8 @@ concurrency:
   cancel-in-progress: false
 
 jobs:
-  build:
-    name: Build, test, and verify distributions
+  verify:
+    name: Verify tag, lint, and test
     runs-on: ubuntu-latest
     timeout-minutes: 15
     steps:
@@ -56,9 +59,9 @@ jobs:
         with:
           python-version: "3.12"
 
-      - name: Install build and test tooling
+      - name: Install dev dependencies
         run: |
-          python -m pip install --upgrade pip build twine
+          python -m pip install --upgrade pip
           python -m pip install -e ".[dev]"
 
       - name: Verify tag matches pyproject.toml and hued.__version__
@@ -91,8 +94,31 @@ jobs:
           ruff check .
           python -m pytest -q
 
-      - name: Build sdist and wheel
+  publish:
+    name: Build, publish to PyPI, and attest provenance
+    needs: verify
+    runs-on: ubuntu-latest
+    timeout-minutes: 15
+    # NOTE: `environment` is intentionally omitted to match the blank environment
+    # configured in Hued's PyPI Trusted Publisher settings.
+    permissions:
+      contents: read
+      id-token: write # Required for PyPI OIDC Trusted Publishing, PEP 740, & attestation signing
+      attestations: write # Required for GitHub SLSA build provenance attestations
+    steps:
+      - name: Check out repository
+        uses: actions/checkout@3d3c42e5aac5ba805825da76410c181273ba90b1 # v7.0.1
+        with:
+          persist-credentials: false
+
+      - name: Set up Python 3.12
+        uses: actions/setup-python@6d4fd22b20465ccc0f7354476588e8df7c9ca0e0 # v7.1.0
+        with:
+          python-version: "3.12"
+
+      - name: Build and verify sdist and wheel
         run: |
+          python -m pip install --upgrade pip build twine
           python -m build
           python -m twine check --strict dist/*
 
@@ -102,39 +128,23 @@ jobs:
           /tmp/smoke-venv/bin/pip install --no-index --find-links=dist hued
           /tmp/smoke-venv/bin/python -c "import hued; assert hued.rgb_to_hex(255, 0, 0) == '#FF0000'; print('Smoke test OK:', hued.__version__)"
 
-      - name: Upload built distributions
-        uses: actions/upload-artifact@cf430e030ddbb5b0abf93d22962f4752f3646cd9 # v7.0.2
-        with:
-          name: python-package-distributions
-          path: dist/
-          if-no-files-found: error
-          retention-days: 7
-
-  publish:
-    name: Publish to PyPI (OIDC Trusted Publishing)
-    needs: build
-    runs-on: ubuntu-latest
-    timeout-minutes: 15
-    # NOTE: `environment` is intentionally omitted to match the blank environment
-    # configured in Hued's PyPI Trusted Publisher settings.
-    permissions:
-      id-token: write # Required for PyPI OIDC Trusted Publishing & PEP 740 provenance attestations
-    steps:
-      - name: Download built distributions
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: python-package-distributions
-          path: dist/
-
       - name: Publish distributions and PEP 740 attestations to PyPI
         uses: pypa/gh-action-pypi-publish@7245906fb61fa33a13554f9d5fb856fe61758086 # v1.14.3
         with:
           packages-dir: dist/
           attestations: true
 
-      - name: Write publish summary
+      - name: Generate GitHub SLSA build provenance attestation
+        id: attest
+        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
+        with:
+          subject-path: "dist/*"
+
+      - name: Write publish and provenance summary
         env:
           TAG_NAME: ${{ github.ref_name }}
+          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
+          REPO: ${{ github.repository }}
         run: |
           VERSION="${TAG_NAME#v}"
           {
@@ -146,71 +156,8 @@ jobs:
             echo "| Version | \`${VERSION}\` |"
             echo "| Tag | \`${TAG_NAME}\` |"
             echo "| Auth | PyPI OIDC Trusted Publishing (blank environment) |"
-            echo "| Provenance | PEP 740 Digital Attestations (\`attestations: true\`) |"
+            echo "| PyPI Provenance | PEP 740 Digital Attestations (\`attestations: true\`) |"
+            echo "| SLSA Provenance | ${ATTESTATION_URL} |"
+            echo "| All Attestations | https://github.com/${REPO}/attestations |"
             echo "| PyPI URL | https://pypi.org/project/hued/${VERSION}/ |"
           } >> "$GITHUB_STEP_SUMMARY"
-
-  attest:
-    name: Attest SLSA build provenance
-    needs: publish
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: read
-      id-token: write
-      attestations: write
-    steps:
-      - name: Download built distributions
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: python-package-distributions
-          path: dist/
-
-      - name: Generate GitHub SLSA build provenance attestation
-        id: attest
-        uses: actions/attest-build-provenance@4d101475d8b20a2381f78447822ac1eab6504dd8 # v4.2.2
-        with:
-          subject-path: "dist/*"
-
-      - name: Write attestation summary
-        env:
-          ATTESTATION_URL: ${{ steps.attest.outputs.attestation-url }}
-          REPO: ${{ github.repository }}
-        run: |
-          {
-            echo "### SLSA Build Provenance 🔐"
-            echo ""
-            echo "- Attestation bundle: ${ATTESTATION_URL}"
-            echo "- All attestations: https://github.com/${REPO}/attestations"
-            echo "- Verify locally: \`gh attestation verify <wheel-or-sdist> --repo ${REPO}\`"
-          } >> "$GITHUB_STEP_SUMMARY"
-
-  release:
-    name: Create GitHub Release
-    needs: [publish, attest]
-    runs-on: ubuntu-latest
-    timeout-minutes: 10
-    permissions:
-      contents: write
-    steps:
-      - name: Download built distributions
-        uses: actions/download-artifact@9000827ccba6bdab643e8b6fd33ac0654aef8333 # v8.0.2
-        with:
-          name: python-package-distributions
-          path: dist/
-
-      - name: Create GitHub Release (idempotent)
-        env:
-          GH_TOKEN: ${{ secrets.GITHUB_TOKEN }}
-          TAG_NAME: ${{ github.ref_name }}
-          REPO: ${{ github.repository }}
-        run: |
-          if gh release view "$TAG_NAME" --repo "$REPO" >/dev/null 2>&1; then
-            echo "Release $TAG_NAME already exists — leaving it untouched."
-            exit 0
-          fi
-          gh release create "$TAG_NAME" dist/* \
-            --repo "$REPO" \
-            --verify-tag \
-            --title "Hued ${TAG_NAME}" \
-            --generate-notes
